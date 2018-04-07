@@ -1,0 +1,6 @@
+class Graph
+{
+	private:
+		
+	public:
+};
