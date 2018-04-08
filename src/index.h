@@ -1,9 +1,14 @@
+#ifndef INDEX_H_
+#define INDEX_H_
 #include <unordered_map>
-#include "graph.h"
+#include "partition.h"
 
 class Index
 {
 	private:
-		Graph& graph_;
-		
+		std::unordered_map<uint32_t, Partition> partitions_;
+	public:
+		Partition& GetPartition(uint32_t label);
+		void CreatePartition(uint32_t label);
 };
+#endif

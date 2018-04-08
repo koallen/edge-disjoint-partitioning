@@ -1,6 +1,0 @@
-class Graph
-{
-	private:
-		
-	public:
-};
