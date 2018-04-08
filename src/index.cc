@@ -10,5 +10,5 @@ void Index::CreatePartition(uint32_t label)
 
 Partition& Index::GetPartition(uint32_t label)
 {
-    return partitions_.find(label)->second;
+    return partitions_[label];
 }

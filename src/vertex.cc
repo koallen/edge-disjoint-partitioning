@@ -4,8 +4,6 @@ using namespace std;
 
 Edge::Edge(uint32_t dst, uint32_t weight) : dst(dst), weight(weight) {}
 
-Vertex::Vertex(uint32_t id) : id_(id) {}
-
 Vertex::Vertex(uint32_t id, bool is_bridge, vector<uint32_t>&& other_hosts) :
 	id_(id), is_bridge_(is_bridge), other_hosts_(move(other_hosts))
 {}

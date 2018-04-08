@@ -16,7 +16,6 @@ class Vertex
 		std::vector<uint32_t> other_hosts_;
 		std::vector<Edge> edges_;
 	public:
-		Vertex(uint32_t id);
 		Vertex(uint32_t id, bool is_bridge, std::vector<uint32_t>&& other_hosts);
 		uint32_t GetId() const;
 		bool IsBridge() const;
