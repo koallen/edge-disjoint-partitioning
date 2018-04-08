@@ -51,13 +51,17 @@ uint32_t RunAlgorithmTwo(Index& index, uint32_t src, uint32_t dst, vector<uint32
 {
 	priority_queue<PQElement, vector<PQElement>, PQCompare> q;
 	
-	q.emplace(0, src, 0); // TODO: set correct label here
+	// TODO: set correct label here (with min edge cost)
+	q.emplace(0, src, 0);
+
 	while (!q.empty())
 	{
 		auto pq_element = q.top();
 		q.pop();
+
 		cout << "Now visiting " << pq_element.dst << endl;
 		if (pq_element.dst == dst) return pq_element.cost;
+
 		// run Dijkstra and insert into index (i.e. cost hash table)
 		auto& par = index.GetPartition(pq_element.label);
 		unordered_map<uint32_t, uint32_t> distances;
@@ -100,7 +104,8 @@ int main()
 	cout << "----Stage 2: query processing----" << endl;
 	vector<uint32_t> labels;
 	labels.push_back(0);
-	uint32_t cost = RunAlgorithmTwo(index, 0, 1, labels);
+	uint32_t src = 0, dst = 1;
+	uint32_t cost = RunAlgorithmTwo(index, src, dst, labels);
 	if (cost == INF)
 		cout << "Cannot find a route" << endl;
 	else
