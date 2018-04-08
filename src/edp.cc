@@ -38,12 +38,6 @@ Index RunAlgorithmOne()
 
 	par.AddEdge(0, 1, 100);
 
-	// test
-	//auto& par1 = index.GetPartition(0);
-	//cout << par1.Contains(0) << endl;
-	//for (auto&& i : par1.GetEdges(0))
-	//	cout << i.weight << endl;
-
 	return index;
 }
 
@@ -56,36 +50,48 @@ uint32_t RunAlgorithmTwo(Index& index, uint32_t src, uint32_t dst, vector<uint32
 
 	while (!q.empty())
 	{
-		auto pq_element = q.top();
+		auto current_vertex = q.top();
 		q.pop();
 
-		cout << "Now visiting " << pq_element.dst << endl;
-		if (pq_element.dst == dst) return pq_element.cost;
+		cout << "Now visiting " << current_vertex.dst << endl;
+		if (current_vertex.dst == dst) return current_vertex.cost;
 
-		// run Dijkstra and insert into index (i.e. cost hash table)
-		auto& par = index.GetPartition(pq_element.label);
-		unordered_map<uint32_t, uint32_t> distances;
-		distances[pq_element.dst] = 0;
-		priority_queue<pair<uint32_t, uint32_t>, vector<pair<uint32_t, uint32_t> >, greater<pair<uint32_t, uint32_t> > > dj_q;
-		dj_q.emplace(0, pq_element.dst);
-		while (!dj_q.empty())
+		// TODO: insert intersec with current_vertex
+
+		/*
+		 * run Dijkstra and insert into index (i.e. cost hash table)
+		 *
+		 * dj_q is the pq used for the Dijkstra run
+		 */
 		{
-			auto dj_element = dj_q.top();
-			dj_q.pop();
-			cout << "Internal: now visiting " << dj_element.second << endl;
-			auto it = distances.find(dj_element.second);
-			if (it != distances.end() && dj_element.first <= it->second)
+			auto& par = index.GetPartition(current_vertex.label);
+			unordered_map<uint32_t, uint32_t> distances; // currently using a map because ID is not contiguous
+			distances[current_vertex.dst] = 0;
+			priority_queue<pair<uint32_t, uint32_t>, vector<pair<uint32_t, uint32_t> >, greater<pair<uint32_t, uint32_t> > > dj_q;
+			dj_q.emplace(0, current_vertex.dst);
+			while (!dj_q.empty())
 			{
-				if (dj_element.second == 1)
-					q.emplace(0, dj_element.second, pq_element.cost + it->second);
-				for (auto&& edge : par.GetEdges(dj_element.second))
+				auto v = dj_q.top();
+				dj_q.pop();
+				cout << "Internal: now visiting " << v.second << endl;
+				auto it = distances.find(v.second);
+				if (it != distances.end() && v.first <= it->second) // ignore redundant entries in PQ
 				{
-					uint32_t new_weight = dj_element.first + edge.weight;
-					auto it = distances.find(edge.dst);
-					if (it == distances.end() || it->second > new_weight)
+					// insert into outer PQ if v is destination or bridge vertex
+					// TODO: make sure the condition is correct
+					if (v.second == dst || par.IsBridge(v.second))
+						// TODO: intersec with otherhosts list
+						q.emplace(0, v.second, current_vertex.cost + it->second);
+					// loop over the outgoing edges
+					for (auto&& edge : par.GetEdges(v.second))
 					{
-						distances[edge.dst] = new_weight;
-						dj_q.emplace(new_weight, edge.dst);
+						uint32_t new_weight = v.first + edge.weight;
+						auto it = distances.find(edge.dst);
+						if (it == distances.end() || it->second > new_weight)
+						{
+							distances[edge.dst] = new_weight;
+							dj_q.emplace(new_weight, edge.dst);
+						}
 					}
 				}
 			}

@@ -17,6 +17,11 @@ void Partition::AddEdge(uint32_t src, uint32_t dst, uint32_t weight)
 	vertices_.find(src)->second.AddEdge(dst, weight);
 }
 
+bool Partition::IsBridge(uint32_t vertex_id)
+{
+	return vertices_.find(vertex_id)->second.IsBridge();
+}
+
 vector<Edge>& Partition::GetEdges(uint32_t vertex_id)
 {
 	return vertices_.find(vertex_id)->second.GetEdges();

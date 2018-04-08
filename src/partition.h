@@ -22,6 +22,7 @@ class Partition
 		bool Contains(uint32_t vertex_id);
 		void AddVertex(uint32_t id, bool is_bridge, std::vector<uint32_t>&& other_hosts);
 		void AddEdge(uint32_t src, uint32_t dst, uint32_t weight);
+		bool IsBridge(uint32_t vertex_id);
 		std::vector<Edge>& GetEdges(uint32_t vertex_id);
 };
 #endif
