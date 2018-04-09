@@ -8,6 +8,25 @@ void Index::CreatePartition(uint32_t label)
     partitions_.insert(make_pair(label, Partition()));
 }
 
+uint32_t Index::GetMinPr(uint32_t src)
+{
+	uint32_t min = 100000000;
+	uint32_t label;
+	for (auto&& p : partitions_)
+	{
+		auto& par = p.second;
+		if (par.Contains(src))
+			for (auto&& edge : par.GetEdges(src))
+				if (edge.weight < min)
+				{
+					min = edge.weight;
+					label = p.first;
+				}
+	}
+
+	return label;
+}
+
 Partition& Index::GetPartition(uint32_t label)
 {
     return partitions_[label];

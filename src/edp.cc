@@ -1,4 +1,8 @@
 #include <iostream>
+#include <unordered_map>
+#include <unordered_set>
+#include <string>
+#include <fstream>
 #include <queue>
 #include <limits>
 #include <utility>
@@ -24,19 +28,62 @@ struct PQCompare
 	}
 };
 
-Index RunAlgorithmOne()
+Index RunAlgorithmOne(string& input_filename, uint32_t num_of_labels)
 {
 	Index index;
-	index.CreatePartition(0);
-	auto& par = index.GetPartition(0);
+	for (uint32_t i = 0; i < num_of_labels; ++i)
+		index.CreatePartition(i);
 
-	vector<uint32_t> other_hosts_0_;
-	par.AddVertex(0, false, move(other_hosts_0_));
+	ifstream input(input_filename);
+	if (!input.is_open())
+	{
+		cout << "Input file cannot be opened!" << endl;
+		exit(-1);
+	}
 
-	vector<uint32_t> other_hosts_1_;
-	par.AddVertex(1, false, move(other_hosts_1_));
+	uint32_t src, dst, weight, label;
+	unordered_map<uint32_t, unordered_set<uint32_t> > other_hosts_map;
+	while (input >> src >> dst >> weight >> label)
+	{
+		other_hosts_map[src].insert(label);
+	}
+	cout << "Finish scanning" << endl;
 
-	par.AddEdge(0, 1, 100);
+	ifstream input2(input_filename);
+	while (input2 >> src >> dst >> weight >> label)
+	{
+		auto& par = index.GetPartition(label);
+		if (!par.Contains(src))
+		{
+			bool is_bridge = false;
+			vector<uint32_t> other_hosts;
+			if (other_hosts_map[src].size() > 1)
+			{
+				is_bridge = true;
+				for (auto&& label_in_map : other_hosts_map[src])
+					if (label != label_in_map)
+						other_hosts.push_back(label_in_map);
+			}
+			par.AddVertex(src, is_bridge, move(other_hosts));
+			cout << "Added vertex " << src << " " << is_bridge << endl;
+		}
+		if (!par.Contains(dst))
+		{
+			bool is_bridge = false;
+			vector<uint32_t> other_hosts;
+			if (other_hosts_map[dst].size() > 1)
+			{
+				is_bridge = true;
+				for (auto&& label_in_map : other_hosts_map[dst])
+					if (label != label_in_map)
+						other_hosts.push_back(label_in_map);
+			}
+			par.AddVertex(dst, is_bridge, move(other_hosts));
+			cout << "Added vertex " << dst << " " << is_bridge << endl;
+		}
+		par.AddEdge(src, dst, weight);
+		cout << "Added edge " << src << "->" << dst << endl;
+	}
 
 	return index;
 }
@@ -44,9 +91,7 @@ Index RunAlgorithmOne()
 uint32_t RunAlgorithmTwo(Index& index, uint32_t src, uint32_t dst, vector<uint32_t>& labels)
 {
 	priority_queue<PQElement, vector<PQElement>, PQCompare> q;
-	
-	// TODO: set correct label here (with min edge cost)
-	q.emplace(0, src, 0);
+	q.emplace(index.GetMinPr(src), src, 0);
 
 	while (!q.empty())
 	{
@@ -101,10 +146,17 @@ uint32_t RunAlgorithmTwo(Index& index, uint32_t src, uint32_t dst, vector<uint32
 	return INF;
 }
 
-int main()
+int main(int argc, char** argv)
 {
+	if (argc != 3)
+	{
+		cout << "Usage: ./edp /path/to/graph num_of_labels" << endl;
+		exit(-1);
+	}
 	cout << "----Stage 1: initialization----" << endl;
-	auto index = RunAlgorithmOne();
+	string input(argv[1]);
+	uint32_t num_of_labels = atoi(argv[2]);
+	auto index = RunAlgorithmOne(input, num_of_labels);
 	cout << "Created index" << endl;
 
 	cout << "----Stage 2: query processing----" << endl;
@@ -116,4 +168,6 @@ int main()
 		cout << "Cannot find a route" << endl;
 	else
 		cout << "Finished, cost is " << cost << endl;
+
+	return 0;
 }

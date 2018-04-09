@@ -1,6 +1,7 @@
 #ifndef VERTEX_H_
 #define VERTEX_H_
 #include <vector>
+#include <unordered_set>
 #include <cstdint>
 
 struct Edge {
@@ -16,7 +17,7 @@ class Vertex
 		std::vector<uint32_t> other_hosts_;
 		std::vector<Edge> edges_;
 	public:
-		Vertex(uint32_t id, bool is_bridge, std::vector<uint32_t>&& other_hosts);
+		Vertex(uint32_t id, bool is_bridge, std::vector<uint32_t>&& other_host);
 		uint32_t GetId() const;
 		bool IsBridge() const;
 		std::vector<uint32_t>& GetOtherHosts();
