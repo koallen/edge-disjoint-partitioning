@@ -88,7 +88,7 @@ Index RunAlgorithmOne(string& input_filename, uint32_t num_of_labels)
 	return index;
 }
 
-uint32_t RunAlgorithmTwo(Index& index, uint32_t src, uint32_t dst, vector<uint32_t>& labels)
+uint32_t RunAlgorithmTwo(Index& index, uint32_t src, uint32_t dst, unordered_set<uint32_t>& labels)
 {
 	priority_queue<PQElement, vector<PQElement>, PQCompare> q;
 	q.emplace(index.GetMinPr(src), src, 0);
@@ -101,7 +101,10 @@ uint32_t RunAlgorithmTwo(Index& index, uint32_t src, uint32_t dst, vector<uint32
 		cout << "Now visiting " << current_vertex.dst << endl;
 		if (current_vertex.dst == dst) return current_vertex.cost;
 
-		// TODO: insert intersec with current_vertex
+		if (index.IsBridge(current_vertex.label, current_vertex.dst))
+			for (auto&& other_label : index.GetOtherHosts(current_vertex.label, current_vertex.dst))
+				if (labels.count(other_label) == 1)
+					q.emplace(other_label, current_vertex.dst, current_vertex.cost);
 
 		/*
 		 * run Dijkstra and insert into index (i.e. cost hash table)
@@ -123,10 +126,14 @@ uint32_t RunAlgorithmTwo(Index& index, uint32_t src, uint32_t dst, vector<uint32
 				if (it != distances.end() && v.first <= it->second) // ignore redundant entries in PQ
 				{
 					// insert into outer PQ if v is destination or bridge vertex
-					// TODO: make sure the condition is correct
 					if (v.second == dst || par.IsBridge(v.second))
-						// TODO: intersec with otherhosts list
 						q.emplace(0, v.second, current_vertex.cost + it->second);
+					else if (par.IsBridge(v.second))
+					{
+						for (auto&& other_label : index.GetOtherHosts(current_vertex.label, v.second))
+							if (labels.count(other_label) == 1)
+								q.emplace(other_label, v.second, current_vertex.cost + it->second);
+					}
 					// loop over the outgoing edges
 					for (auto&& edge : par.GetEdges(v.second))
 					{
@@ -160,8 +167,8 @@ int main(int argc, char** argv)
 	cout << "Created index" << endl;
 
 	cout << "----Stage 2: query processing----" << endl;
-	vector<uint32_t> labels;
-	labels.push_back(0);
+	unordered_set<uint32_t> labels;
+	labels.insert(0);
 	uint32_t src = 0, dst = 1;
 	uint32_t cost = RunAlgorithmTwo(index, src, dst, labels);
 	if (cost == INF)
