@@ -126,7 +126,7 @@ uint32_t RunAlgorithmTwo(Index& index, uint32_t src, uint32_t dst, unordered_set
 				if (it != distances.end() && v.first <= it->second) // ignore redundant entries in PQ
 				{
 					// insert into outer PQ if v is destination or bridge vertex
-					if (v.second == dst || par.IsBridge(v.second))
+					if (v.second == dst)
 						q.emplace(0, v.second, current_vertex.cost + it->second);
 					else if (par.IsBridge(v.second))
 					{
