@@ -1,6 +1,6 @@
 CXX = g++
-#CXXFLAGS = -std=c++11 -O3 -march=native
-CXXFLAGS = -std=c++11 -O0 -g
+CXXFLAGS = -std=c++11 -O3 -march=native -DNDEBUG
+#CXXFLAGS = -std=c++11 -O0 -g
 OBJFILES = partition.o \
 	vertex.o \
 	index.o \

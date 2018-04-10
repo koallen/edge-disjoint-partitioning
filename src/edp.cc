@@ -10,8 +10,6 @@
 #include "partition.h"
 #include "vertex.h"
 
-//#define NDEBUG
-
 using namespace std;
 
 const uint32_t INF = numeric_limits<uint32_t>::max();
@@ -102,14 +100,39 @@ Index RunAlgorithmOne(string& input_filename, uint32_t num_of_labels)
 	return index;
 }
 
+void InsertIfRelaxed(priority_queue<PQElement, vector<PQElement>, PQCompare>& q,
+	uint32_t label, uint32_t dst, uint32_t distance,
+	unordered_map<uint64_t, uint32_t>& global_distance)
+{
+	uint64_t key = static_cast<uint64_t>(label) << 32;
+	key += static_cast<uint64_t>(dst);
+	auto it = global_distance.find(key);
+	if (it == global_distance.end())
+	{
+		q.emplace(label, dst, distance);
+		global_distance.insert(make_pair(key, distance));
+#ifndef NDEBUG
+		cout << "Inserted " << dst << " in partition " << label << " into PQ" << endl;
+#endif
+	}
+	else if (it != global_distance.end() && it->second > distance)
+	{
+		q.emplace(label, dst, distance);
+#ifndef NDEBUG
+		cout << "Inserted " << dst << " in partition " << label << " into PQ" << endl;
+#endif
+	}
+}
+
 uint32_t RunAlgorithmTwo(Index& index, uint32_t src, uint32_t dst, unordered_set<uint32_t>& labels)
 {
 	priority_queue<PQElement, vector<PQElement>, PQCompare> q;
+	unordered_map<uint64_t, uint32_t> global_distance;
 
 	uint32_t min_par = index.GetMinPr(src, labels);
 	if (min_par == INF)
 		return INF;
-	q.emplace(min_par, src, 0);
+	InsertIfRelaxed(q, min_par, src, 0, global_distance);
 
 	while (!q.empty())
 	{
@@ -144,12 +167,14 @@ uint32_t RunAlgorithmTwo(Index& index, uint32_t src, uint32_t dst, unordered_set
 				{
 					// insert into outer PQ if v is destination or bridge vertex
 					if (v.second == dst)
-						q.emplace(current_vertex.label, v.second, current_vertex.cost + it->second);
+						InsertIfRelaxed(q, current_vertex.label, v.second,
+								current_vertex.cost + it->second, global_distance);
 					else if (par.IsBridge(v.second))
 					{
 						for (auto&& other_label : index.GetOtherHosts(current_vertex.label, v.second))
 							if (labels.count(other_label) == 1)
-								q.emplace(other_label, v.second, current_vertex.cost + it->second);
+								InsertIfRelaxed(q, other_label, v.second,
+										current_vertex.cost + it->second, global_distance);
 					}
 					// loop over the outgoing edges
 					for (auto&& edge : par.GetEdges(v.second))

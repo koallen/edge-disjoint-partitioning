@@ -4,16 +4,6 @@
 #include <vector>
 #include <unordered_map>
 
-// struct VertexHasher
-// {
-// 	size_t operator()(const Vertex& obj) const;
-// };
-
-// struct VertexComparator
-// {
-// 	bool operator()(const Vertex& obj1, const Vertex& obj2) const;
-// };
-
 class Partition
 {
 	private:
