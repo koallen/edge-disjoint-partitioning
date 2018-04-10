@@ -10,6 +10,8 @@
 #include "partition.h"
 #include "vertex.h"
 
+#define NDEBUG
+
 using namespace std;
 
 const uint32_t INF = numeric_limits<uint32_t>::max();
@@ -57,32 +59,38 @@ Index RunAlgorithmOne(string& input_filename, uint32_t num_of_labels)
 		{
 			bool is_bridge = false;
 			vector<uint32_t> other_hosts;
-			if (other_hosts_map[src].size() > 1)
+			for (auto&& label_in_map : other_hosts_map[src])
 			{
-				is_bridge = true;
-				for (auto&& label_in_map : other_hosts_map[src])
-					if (label != label_in_map)
-						other_hosts.push_back(label_in_map);
+				if (label != label_in_map)
+					other_hosts.push_back(label_in_map);
 			}
+			if (!other_hosts.empty())
+				is_bridge = true;
 			par.AddVertex(src, is_bridge, move(other_hosts));
+#ifndef NDEBUG
 			cout << "Added vertex " << src << " " << is_bridge << endl;
+#endif
 		}
 		if (!par.Contains(dst))
 		{
 			bool is_bridge = false;
 			vector<uint32_t> other_hosts;
-			if (other_hosts_map[dst].size() > 1)
+			for (auto&& label_in_map : other_hosts_map[dst])
 			{
-				is_bridge = true;
-				for (auto&& label_in_map : other_hosts_map[dst])
-					if (label != label_in_map)
-						other_hosts.push_back(label_in_map);
+				if (label != label_in_map)
+					other_hosts.push_back(label_in_map);
 			}
+			if (!other_hosts.empty())
+				is_bridge = true;
 			par.AddVertex(dst, is_bridge, move(other_hosts));
+#ifndef NDEBUG
 			cout << "Added vertex " << dst << " " << is_bridge << endl;
+#endif
 		}
 		par.AddEdge(src, dst, weight);
+#ifndef NDEBUG
 		cout << "Added edge " << src << "->" << dst << endl;
+#endif
 	}
 
 	return index;
@@ -91,14 +99,20 @@ Index RunAlgorithmOne(string& input_filename, uint32_t num_of_labels)
 uint32_t RunAlgorithmTwo(Index& index, uint32_t src, uint32_t dst, unordered_set<uint32_t>& labels)
 {
 	priority_queue<PQElement, vector<PQElement>, PQCompare> q;
-	q.emplace(index.GetMinPr(src), src, 0);
+
+	uint32_t min_par = index.GetMinPr(src, labels);
+	if (min_par == INF)
+		return INF;
+	q.emplace(min_par, src, 0);
 
 	while (!q.empty())
 	{
 		auto current_vertex = q.top();
 		q.pop();
 
+//#ifndef NDEBUG
 		cout << "Now visiting " << current_vertex.dst << endl;
+//#endif
 		if (current_vertex.dst == dst) return current_vertex.cost;
 
 		if (index.IsBridge(current_vertex.label, current_vertex.dst))
@@ -121,13 +135,15 @@ uint32_t RunAlgorithmTwo(Index& index, uint32_t src, uint32_t dst, unordered_set
 			{
 				auto v = dj_q.top();
 				dj_q.pop();
+//#ifndef NDEBUG
 				cout << "Internal: now visiting " << v.second << endl;
+//#endif
 				auto it = distances.find(v.second);
-				if (it != distances.end() && v.first <= it->second) // ignore redundant entries in PQ
+				if (it != distances.end() && v.first == it->second) // ignore redundant entries in PQ
 				{
 					// insert into outer PQ if v is destination or bridge vertex
 					if (v.second == dst)
-						q.emplace(0, v.second, current_vertex.cost + it->second);
+						q.emplace(current_vertex.label, v.second, current_vertex.cost + it->second);
 					else if (par.IsBridge(v.second))
 					{
 						for (auto&& other_label : index.GetOtherHosts(current_vertex.label, v.second))
@@ -169,7 +185,8 @@ int main(int argc, char** argv)
 	cout << "----Stage 2: query processing----" << endl;
 	unordered_set<uint32_t> labels;
 	labels.insert(0);
-	uint32_t src = 0, dst = 1;
+	labels.insert(4);
+	uint32_t src = 1, dst = 1925;
 	uint32_t cost = RunAlgorithmTwo(index, src, dst, labels);
 	if (cost == INF)
 		cout << "Cannot find a route" << endl;
