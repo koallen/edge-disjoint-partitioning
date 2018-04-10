@@ -10,7 +10,7 @@
 #include "partition.h"
 #include "vertex.h"
 
-#define NDEBUG
+//#define NDEBUG
 
 using namespace std;
 
@@ -68,7 +68,10 @@ Index RunAlgorithmOne(string& input_filename, uint32_t num_of_labels)
 				is_bridge = true;
 			par.AddVertex(src, is_bridge, move(other_hosts));
 #ifndef NDEBUG
-			cout << "Added vertex " << src << " " << is_bridge << endl;
+			cout << "Added vertex " << src << " " << is_bridge << " to partition " << label << " with other hosts ";
+			for (auto&& l : par.GetVertex(src).GetOtherHosts())
+				cout << l << " ";
+			cout << endl;
 #endif
 		}
 		if (!par.Contains(dst))
@@ -84,12 +87,15 @@ Index RunAlgorithmOne(string& input_filename, uint32_t num_of_labels)
 				is_bridge = true;
 			par.AddVertex(dst, is_bridge, move(other_hosts));
 #ifndef NDEBUG
-			cout << "Added vertex " << dst << " " << is_bridge << endl;
+			cout << "Added vertex " << dst << " " << is_bridge << " to partition " << label << " with other hosts ";
+			for (auto&& l : par.GetVertex(dst).GetOtherHosts())
+				cout << l << " ";
+			cout << endl;
 #endif
 		}
 		par.AddEdge(src, dst, weight);
 #ifndef NDEBUG
-		cout << "Added edge " << src << "->" << dst << endl;
+		cout << "Added edge " << src << "->" << dst << " to partition " << label << endl;
 #endif
 	}
 
@@ -110,15 +116,10 @@ uint32_t RunAlgorithmTwo(Index& index, uint32_t src, uint32_t dst, unordered_set
 		auto current_vertex = q.top();
 		q.pop();
 
-//#ifndef NDEBUG
+#ifndef NDEBUG
 		cout << "Now visiting " << current_vertex.dst << endl;
-//#endif
+#endif
 		if (current_vertex.dst == dst) return current_vertex.cost;
-
-		if (index.IsBridge(current_vertex.label, current_vertex.dst))
-			for (auto&& other_label : index.GetOtherHosts(current_vertex.label, current_vertex.dst))
-				if (labels.count(other_label) == 1)
-					q.emplace(other_label, current_vertex.dst, current_vertex.cost);
 
 		/*
 		 * run Dijkstra and insert into index (i.e. cost hash table)
@@ -135,9 +136,9 @@ uint32_t RunAlgorithmTwo(Index& index, uint32_t src, uint32_t dst, unordered_set
 			{
 				auto v = dj_q.top();
 				dj_q.pop();
-//#ifndef NDEBUG
+#ifndef NDEBUG
 				cout << "Internal: now visiting " << v.second << endl;
-//#endif
+#endif
 				auto it = distances.find(v.second);
 				if (it != distances.end() && v.first == it->second) // ignore redundant entries in PQ
 				{
@@ -185,8 +186,8 @@ int main(int argc, char** argv)
 	cout << "----Stage 2: query processing----" << endl;
 	unordered_set<uint32_t> labels;
 	labels.insert(0);
-	labels.insert(4);
-	uint32_t src = 1, dst = 1925;
+	labels.insert(1);
+	uint32_t src = 1, dst = 6;
 	uint32_t cost = RunAlgorithmTwo(index, src, dst, labels);
 	if (cost == INF)
 		cout << "Cannot find a route" << endl;
