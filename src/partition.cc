@@ -31,3 +31,24 @@ vector<Edge>& Partition::GetEdges(uint32_t vertex_id)
 {
 	return vertices_.find(vertex_id)->second.GetEdges();
 }
+
+bool Partition::ContainsCost(uint32_t src, uint32_t dst)
+{
+	uint64_t key = static_cast<uint64_t>(src) << 32;
+	key += static_cast<uint64_t>(dst);
+	return costs_.find(key) != costs_.end();
+}
+
+void Partition::AddCost(uint32_t src, uint32_t dst, uint32_t distance)
+{
+	uint64_t key = static_cast<uint64_t>(src) << 32;
+	key += static_cast<uint64_t>(dst);
+	costs_[key] = distance;
+}
+
+uint32_t Partition::GetCost(uint32_t src, uint32_t dst)
+{
+	uint64_t key = static_cast<uint64_t>(src) << 32;
+	key += static_cast<uint64_t>(dst);
+	return costs_[key];
+}

@@ -15,5 +15,8 @@ class Index
 		uint32_t GetMinPr(uint32_t src, std::unordered_set<uint32_t>& labels);
 		bool IsBridge(uint32_t label, uint32_t vertex_id);
 		void CreatePartition(uint32_t label);
+		uint32_t GetCost(uint32_t label, uint32_t src, uint32_t dst);
+		bool ContainsCost(uint32_t label, uint32_t src, uint32_t dst);
+		std::vector<uint32_t>& GetBridgeEdges(uint32_t label, uint32_t vertex_id);
 };
 #endif

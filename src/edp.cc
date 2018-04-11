@@ -1,4 +1,5 @@
 #include <iostream>
+#include <chrono>
 #include <unordered_map>
 #include <unordered_set>
 #include <string>
@@ -149,7 +150,36 @@ uint32_t RunAlgorithmTwo(Index& index, uint32_t src, uint32_t dst, unordered_set
 		 *
 		 * dj_q is the pq used for the Dijkstra run
 		 */
+		if (index.ContainsCost(current_vertex.label, current_vertex.dst, dst))
 		{
+#ifndef NDEBUG
+			cout << "Retrieving from index" << endl;
+#endif
+			// insert for destination
+			uint32_t cost_to_dst = index.GetCost(current_vertex.label, current_vertex.dst, dst);
+			if (cost_to_dst != INF)
+				InsertIfRelaxed(q, current_vertex.label, dst, current_vertex.cost + cost_to_dst, global_distance);
+			// insert for reachable bridge vertices
+			for (auto&& bridge_v : index.GetBridgeEdges(current_vertex.label, current_vertex.dst))
+			{
+				uint32_t cost_to_bridge = index.GetCost(current_vertex.label, current_vertex.dst, bridge_v);
+				for (auto&& other_label : index.GetOtherHosts(current_vertex.label, bridge_v))
+					if (labels.count(other_label) == 1)
+						InsertIfRelaxed(q, other_label, bridge_v,
+								current_vertex.cost + cost_to_bridge, global_distance);
+			}
+			// insert for itself if it's a bridge
+			if (index.IsBridge(current_vertex.label, current_vertex.dst))
+				for (auto&& other_label : index.GetOtherHosts(current_vertex.label, current_vertex.dst))
+					if (labels.count(other_label) == 1)
+						InsertIfRelaxed(q, other_label, current_vertex.dst,
+								current_vertex.cost, global_distance);
+		}
+		else
+		{
+#ifndef NDEBUG
+			cout << "Running Dijkstra" << endl;
+#endif
 			auto& par = index.GetPartition(current_vertex.label);
 			unordered_map<uint32_t, uint32_t> distances; // currently using a map because ID is not contiguous
 			distances[current_vertex.dst] = 0;
@@ -175,6 +205,11 @@ uint32_t RunAlgorithmTwo(Index& index, uint32_t src, uint32_t dst, unordered_set
 							if (labels.count(other_label) == 1)
 								InsertIfRelaxed(q, other_label, v.second,
 										current_vertex.cost + it->second, global_distance);
+						if (v.second != current_vertex.dst)
+						{
+							par.AddCost(current_vertex.dst, v.second, it->second);
+							par.GetVertex(current_vertex.dst).AddBridgeEdge(v.second);
+						}
 					}
 					// loop over the outgoing edges
 					for (auto&& edge : par.GetEdges(v.second))
@@ -189,6 +224,12 @@ uint32_t RunAlgorithmTwo(Index& index, uint32_t src, uint32_t dst, unordered_set
 					}
 				}
 			}
+			// add entry to cost for the pair (current_vertex, dst)
+			auto it = distances.find(dst);
+			if (it != distances.end())
+				par.AddCost(current_vertex.dst, dst, it->second);
+			else
+				par.AddCost(current_vertex.dst, dst, INF);
 		}
 	}
 
@@ -213,11 +254,25 @@ int main(int argc, char** argv)
 	labels.insert(0);
 	labels.insert(1);
 	uint32_t src = 1, dst = 6;
-	uint32_t cost = RunAlgorithmTwo(index, src, dst, labels);
-	if (cost == INF)
-		cout << "Cannot find a route" << endl;
-	else
-		cout << "Finished, cost is " << cost << endl;
+	for (size_t i = 0; i < 5; ++i)
+	{
+		auto t1 = chrono::high_resolution_clock::now();
+		uint32_t cost = RunAlgorithmTwo(index, src, dst, labels);
+		auto t2 = chrono::high_resolution_clock::now();
+
+		if (cost == INF)
+			cout << "Cannot find a route" << endl;
+		else
+		{
+			cout << "Finished, cost is " << cost << " from " << src << " to " << dst << " with labels ";
+			for (auto&& l : labels)
+				cout << l << " ";
+			cout << endl;
+		}
+
+		auto diff = chrono::duration_cast<chrono::nanoseconds>(t2 - t1);
+		cout << "Time taken to run the query: " << diff.count() << "ns" << endl;
+	}
 
 	return 0;
 }

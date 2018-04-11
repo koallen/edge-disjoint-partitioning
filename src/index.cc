@@ -44,3 +44,18 @@ Partition& Index::GetPartition(uint32_t label)
 {
     return partitions_[label];
 }
+
+uint32_t Index::GetCost(uint32_t label, uint32_t src, uint32_t dst)
+{
+	return partitions_[label].GetCost(src, dst);
+}
+
+bool Index::ContainsCost(uint32_t label, uint32_t src, uint32_t dst)
+{
+	return partitions_[label].ContainsCost(src, dst);
+}
+
+vector<uint32_t>& Index::GetBridgeEdges(uint32_t label, uint32_t vertex_id)
+{
+	return partitions_[label].GetVertex(vertex_id).GetBridgeEdges();
+}

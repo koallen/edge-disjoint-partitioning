@@ -32,3 +32,13 @@ vector<Edge>& Vertex::GetEdges()
 {
 	return edges_;
 }
+
+vector<uint32_t>& Vertex::GetBridgeEdges()
+{
+	return bridge_edges_;
+}
+
+void Vertex::AddBridgeEdge(uint32_t dst)
+{
+	bridge_edges_.push_back(dst);
+}
