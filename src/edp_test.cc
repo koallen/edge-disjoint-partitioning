@@ -25,9 +25,9 @@ int main(int argc, char** argv)
 
 	cout << "----Stage 2: query processing----" << endl;
 	unordered_set<uint32_t> labels;
-	labels.insert(5);
-	labels.insert(3);
-	uint32_t src = 0, dst = 60500;
+	labels.insert(2);
+	labels.insert(0);
+	uint32_t src = 74, dst = 22;
 	for (size_t i = 0; i < 5; ++i)
 	{
 		auto t1 = chrono::high_resolution_clock::now();
