@@ -4,10 +4,15 @@ CXXFLAGS = -std=c++11 -O3 -march=native -DNDEBUG
 OBJFILES = partition.o \
 	vertex.o \
 	index.o \
-	edp.o
+	algorithms.o
 
-all: $(OBJFILES)
-	$(CXX) $(CXXFLAGS) -o edp $^
+all: edp_test
+
+edp_test: $(OBJFILES) edp_test.o
+	$(CXX) $(CXXFLAGS) -o $@ $^
+
+edp_main: $(OBJFILES) edp_main.o
+	$(CXX) $(CXXFLAGS) -o $@ $^
 
 .PHONY:
 clean:

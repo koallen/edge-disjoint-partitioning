@@ -13,7 +13,7 @@
 
 using namespace std;
 
-const uint32_t INF = numeric_limits<uint32_t>::max();
+static const uint32_t INF = numeric_limits<uint32_t>::max();
 
 struct PQElement
 {
@@ -101,7 +101,7 @@ Index RunAlgorithmOne(string& input_filename, uint32_t num_of_labels)
 	return index;
 }
 
-void InsertIfRelaxed(priority_queue<PQElement, vector<PQElement>, PQCompare>& q,
+static void InsertIfRelaxed(priority_queue<PQElement, vector<PQElement>, PQCompare>& q,
 	uint32_t label, uint32_t dst, uint32_t distance,
 	unordered_map<uint64_t, uint32_t>& global_distance)
 {
@@ -234,45 +234,4 @@ uint32_t RunAlgorithmTwo(Index& index, uint32_t src, uint32_t dst, unordered_set
 	}
 
 	return INF;
-}
-
-int main(int argc, char** argv)
-{
-	if (argc != 3)
-	{
-		cout << "Usage: ./edp /path/to/graph num_of_labels" << endl;
-		exit(-1);
-	}
-	cout << "----Stage 1: initialization----" << endl;
-	string input(argv[1]);
-	uint32_t num_of_labels = atoi(argv[2]);
-	auto index = RunAlgorithmOne(input, num_of_labels);
-	cout << "Created index" << endl;
-
-	cout << "----Stage 2: query processing----" << endl;
-	unordered_set<uint32_t> labels;
-	labels.insert(0);
-	labels.insert(1);
-	uint32_t src = 1, dst = 6;
-	for (size_t i = 0; i < 5; ++i)
-	{
-		auto t1 = chrono::high_resolution_clock::now();
-		uint32_t cost = RunAlgorithmTwo(index, src, dst, labels);
-		auto t2 = chrono::high_resolution_clock::now();
-
-		if (cost == INF)
-			cout << "Cannot find a route" << endl;
-		else
-		{
-			cout << "Finished, cost is " << cost << " from " << src << " to " << dst << " with labels ";
-			for (auto&& l : labels)
-				cout << l << " ";
-			cout << endl;
-		}
-
-		auto diff = chrono::duration_cast<chrono::nanoseconds>(t2 - t1);
-		cout << "Time taken to run the query: " << diff.count() << "ns" << endl;
-	}
-
-	return 0;
 }
