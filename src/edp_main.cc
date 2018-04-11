@@ -1,6 +1,7 @@
 #include <iostream>
 #include <chrono>
 #include <ctime>
+#include <random>
 #include <string>
 #include <fstream>
 #include <limits>
@@ -10,7 +11,7 @@
 using namespace std;
 
 static const uint32_t INF = numeric_limits<uint32_t>::max();
-
+typedef mt19937 RandomGenerator;
 
 int main(int argc, char** argv)
 {
@@ -29,9 +30,13 @@ int main(int argc, char** argv)
 	cout << "----Stage 2: query processing----" << endl;
 	uint32_t num_of_vertices = atoi(argv[3]);
 	unordered_set<uint32_t> labels;
-	srand(time(nullptr));
+	RandomGenerator rng;
+	rng.seed(random_device()());
+	uniform_int_distribution<uint32_t> label_dist(0, num_of_labels);
+	uniform_int_distribution<uint32_t> vertex_dist(0, num_of_vertices);
+
 	while (labels.size() < num_of_labels/2)
-		labels.insert(rand()/((RAND_MAX + 1u)/num_of_labels));
+		labels.insert(label_dist(rng));
 
 #ifndef NDEBUG
 	for (uint32_t label:labels)
@@ -41,8 +46,8 @@ int main(int argc, char** argv)
 	uint32_t num_of_qeuries = 2;
 	for (uint32_t iter=0; iter < num_of_qeuries; ++iter)
 	{
-		uint32_t src = rand()/((RAND_MAX + 1u)/num_of_vertices);
-		uint32_t dst = rand()/((RAND_MAX + 1u)/num_of_vertices);
+		uint32_t src = vertex_dist(rng);
+		uint32_t dst = vertex_dist(rng);
 
 		cout << "src " << src << endl;
 		cout << "dst " << dst << endl;
