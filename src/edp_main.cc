@@ -43,9 +43,10 @@ int main(int argc, char** argv)
 		cout << "label: " << label << endl;
 #endif
 
-	uint32_t num_of_qeuries = 2;
+	uint32_t num_of_qeuries = 20;
 	for (uint32_t iter=0; iter < num_of_qeuries; ++iter)
 	{
+		cout << "query num: " << iter << endl;
 		uint32_t src = vertex_dist(rng);
 		uint32_t dst = vertex_dist(rng);
 
@@ -68,6 +69,7 @@ int main(int argc, char** argv)
 
 		auto diff = chrono::duration_cast<chrono::nanoseconds>(t2 - t1);
 		cout << "Time taken to run the query: " << diff.count() << "ns" << endl;
+		cout << "========================================" << endl;
 	}
 
     return 0;
