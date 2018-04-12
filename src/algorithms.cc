@@ -122,6 +122,7 @@ static void InsertIfRelaxed(priority_queue<PQElement, vector<PQElement>, PQCompa
 #ifndef NDEBUG
 		cout << "Inserted " << dst << " in partition " << label << " into PQ" << endl;
 #endif
+		it->second = distance;
 	}
 }
 
@@ -133,6 +134,7 @@ uint32_t RunAlgorithmTwo(Index& index, uint32_t src, uint32_t dst, unordered_set
 	uint32_t min_par = index.GetMinPr(src, labels);
 	if (min_par == INF)
 		return INF;
+	// cout << "min_par = " << min_par << endl;
 	InsertIfRelaxed(q, min_par, src, 0, global_distance);
 
 	while (!q.empty())
