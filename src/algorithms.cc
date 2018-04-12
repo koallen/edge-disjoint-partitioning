@@ -67,10 +67,10 @@ Index RunAlgorithmOne(string& input_filename, uint32_t num_of_labels)
 				is_bridge = true;
 			par.AddVertex(src, is_bridge, move(other_hosts));
 #ifndef NDEBUG
-			cout << "Added vertex " << src << " " << is_bridge << " to partition " << label << " with other hosts ";
-			for (auto&& l : par.GetVertex(src).GetOtherHosts())
-				cout << l << " ";
-			cout << endl;
+			//cout << "Added vertex " << src << " " << is_bridge << " to partition " << label << " with other hosts ";
+			//for (auto&& l : par.GetVertex(src).GetOtherHosts())
+			//	cout << l << " ";
+			//cout << endl;
 #endif
 		}
 		if (!par.Contains(dst))
@@ -86,15 +86,15 @@ Index RunAlgorithmOne(string& input_filename, uint32_t num_of_labels)
 				is_bridge = true;
 			par.AddVertex(dst, is_bridge, move(other_hosts));
 #ifndef NDEBUG
-			cout << "Added vertex " << dst << " " << is_bridge << " to partition " << label << " with other hosts ";
-			for (auto&& l : par.GetVertex(dst).GetOtherHosts())
-				cout << l << " ";
-			cout << endl;
+			//cout << "Added vertex " << dst << " " << is_bridge << " to partition " << label << " with other hosts ";
+			//for (auto&& l : par.GetVertex(dst).GetOtherHosts())
+			//	cout << l << " ";
+			//cout << endl;
 #endif
 		}
 		par.AddEdge(src, dst, weight);
 #ifndef NDEBUG
-		cout << "Added edge " << src << "->" << dst << " to partition " << label << endl;
+		//cout << "Added edge " << src << "->" << dst << " to partition " << label << endl;
 #endif
 	}
 
@@ -113,14 +113,15 @@ static void InsertIfRelaxed(priority_queue<PQElement, vector<PQElement>, PQCompa
 		q.emplace(label, dst, distance);
 		global_distance.insert(make_pair(key, distance));
 #ifndef NDEBUG
-		cout << "Inserted " << dst << " in partition " << label << " into PQ" << endl;
+		//cout << "Inserted " << dst << " in partition " << label << " into PQ" << endl;
 #endif
 	}
 	else if (it != global_distance.end() && it->second > distance)
 	{
 		q.emplace(label, dst, distance);
+		it->second = distance;
 #ifndef NDEBUG
-		cout << "Inserted " << dst << " in partition " << label << " into PQ" << endl;
+		//cout << "Inserted " << dst << " in partition " << label << " into PQ" << endl;
 #endif
 	}
 }
