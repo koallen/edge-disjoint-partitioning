@@ -1,2 +1,4 @@
 *.o
 edp
+edp_test
+edp_main
