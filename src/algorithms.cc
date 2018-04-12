@@ -123,7 +123,6 @@ static void InsertIfRelaxed(priority_queue<PQElement, vector<PQElement>, PQCompa
 #ifndef NDEBUG
 		//cout << "Inserted " << dst << " in partition " << label << " into PQ" << endl;
 #endif
-		it->second = distance;
 	}
 }
 
