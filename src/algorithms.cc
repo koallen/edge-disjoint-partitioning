@@ -101,12 +101,18 @@ Index RunAlgorithmOne(string& input_filename, uint32_t num_of_labels)
 	return index;
 }
 
+static inline uint64_t GetKey(uint32_t a, uint32_t b)
+{
+	uint64_t key = static_cast<uint64_t>(a) << 32;
+	key += static_cast<uint64_t>(b);
+	return key;
+}
+
 static void InsertIfRelaxed(priority_queue<PQElement, vector<PQElement>, PQCompare>& q,
 	uint32_t label, uint32_t dst, uint32_t distance,
 	unordered_map<uint64_t, uint32_t>& global_distance)
 {
-	uint64_t key = static_cast<uint64_t>(label) << 32;
-	key += static_cast<uint64_t>(dst);
+	auto key = GetKey(label, dst);
 	auto it = global_distance.find(key);
 	if (it == global_distance.end())
 	{
@@ -141,8 +147,7 @@ uint32_t RunAlgorithmTwo(Index& index, uint32_t src, uint32_t dst, unordered_set
 	{
 		auto current_vertex = q.top();
 		q.pop();
-		uint64_t key = static_cast<uint64_t>(current_vertex.label) << 32;
-		key += static_cast<uint64_t>(current_vertex.dst);
+		auto key = GetKey(current_vertex.label, current_vertex.dst);
 		if (current_vertex.cost > global_distance[key])
 			continue;
 
