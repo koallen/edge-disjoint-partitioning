@@ -157,36 +157,12 @@ uint32_t RunAlgorithmTwo(Index& index, uint32_t src, uint32_t dst, unordered_set
 		if (current_vertex.dst == dst) return current_vertex.cost;
 
 		/*
-		 * run Dijkstra and insert into index (i.e. cost hash table)
+		 * Run Dijkstra and insert into index (i.e. cost hash table)
+		 * in case the index has not been built yet
 		 *
-		 * dj_q is the pq used for the Dijkstra run
+		 * dj_q is the pq used for the internal Dijkstra run
 		 */
-		if (index.ContainsCost(current_vertex.label, current_vertex.dst, dst))
-		{
-#ifndef NDEBUG
-			cout << "Retrieving from index" << endl;
-#endif
-			// insert for destination
-			uint32_t cost_to_dst = index.GetCost(current_vertex.label, current_vertex.dst, dst);
-			if (cost_to_dst != INF)
-				InsertIfRelaxed(q, current_vertex.label, dst, current_vertex.cost + cost_to_dst, global_distance);
-			// insert for reachable bridge vertices
-			for (auto&& bridge_v : index.GetBridgeEdges(current_vertex.label, current_vertex.dst))
-			{
-				uint32_t cost_to_bridge = index.GetCost(current_vertex.label, current_vertex.dst, bridge_v);
-				for (auto&& other_label : index.GetOtherHosts(current_vertex.label, bridge_v))
-					if (labels.count(other_label) == 1)
-						InsertIfRelaxed(q, other_label, bridge_v,
-								current_vertex.cost + cost_to_bridge, global_distance);
-			}
-			// insert for itself if it's a bridge
-			if (index.IsBridge(current_vertex.label, current_vertex.dst))
-				for (auto&& other_label : index.GetOtherHosts(current_vertex.label, current_vertex.dst))
-					if (labels.count(other_label) == 1)
-						InsertIfRelaxed(q, other_label, current_vertex.dst,
-								current_vertex.cost, global_distance);
-		}
-		else
+		if (!index.ContainsCost(current_vertex.label, current_vertex.dst, dst))
 		{
 #ifndef NDEBUG
 			cout << "Running Dijkstra" << endl;
@@ -206,21 +182,15 @@ uint32_t RunAlgorithmTwo(Index& index, uint32_t src, uint32_t dst, unordered_set
 				auto it = distances.find(v.second);
 				if (it != distances.end() && v.first == it->second) // ignore redundant entries in PQ
 				{
-					// insert into outer PQ if v is destination or bridge vertex
-					if (v.second == dst)
-						InsertIfRelaxed(q, current_vertex.label, v.second,
-								current_vertex.cost + it->second, global_distance);
-					else if (par.IsBridge(v.second))
+					// add to the index if v is a bridge or v is the destination
+					if (par.IsBridge(v.second) && v.second != current_vertex.dst)
 					{
-						for (auto&& other_label : index.GetOtherHosts(current_vertex.label, v.second))
-							if (labels.count(other_label) == 1)
-								InsertIfRelaxed(q, other_label, v.second,
-										current_vertex.cost + it->second, global_distance);
-						if (v.second != current_vertex.dst)
-						{
 							par.AddCost(current_vertex.dst, v.second, it->second);
 							par.GetVertex(current_vertex.dst).AddBridgeEdge(v.second);
-						}
+					}
+					else if (v.second == dst)
+					{
+							par.AddCost(current_vertex.dst, v.second, it->second);
 					}
 					// loop over the outgoing edges
 					for (auto&& edge : par.GetEdges(v.second))
@@ -235,13 +205,37 @@ uint32_t RunAlgorithmTwo(Index& index, uint32_t src, uint32_t dst, unordered_set
 					}
 				}
 			}
-			// add entry to cost for the pair (current_vertex, dst)
+			// flag the destination as not reachable if that's the case
 			auto it = distances.find(dst);
-			if (it != distances.end())
-				par.AddCost(current_vertex.dst, dst, it->second);
-			else
+			if (it == distances.end())
 				par.AddCost(current_vertex.dst, dst, INF);
 		}
+
+		/**
+		 * Retrieve from index and add to the PQ
+		 */
+#ifndef NDEBUG
+		cout << "Retrieving from index" << endl;
+#endif
+		// insert for destination
+		uint32_t cost_to_dst = index.GetCost(current_vertex.label, current_vertex.dst, dst);
+		if (cost_to_dst != INF)
+			InsertIfRelaxed(q, current_vertex.label, dst, current_vertex.cost + cost_to_dst, global_distance);
+		// insert for reachable bridge vertices
+		for (auto&& bridge_v : index.GetBridgeEdges(current_vertex.label, current_vertex.dst))
+		{
+			uint32_t cost_to_bridge = index.GetCost(current_vertex.label, current_vertex.dst, bridge_v);
+			for (auto&& other_label : index.GetOtherHosts(current_vertex.label, bridge_v))
+				if (labels.count(other_label) == 1)
+					InsertIfRelaxed(q, other_label, bridge_v,
+							current_vertex.cost + cost_to_bridge, global_distance);
+		}
+		// insert for itself if it's a bridge
+		if (index.IsBridge(current_vertex.label, current_vertex.dst))
+			for (auto&& other_label : index.GetOtherHosts(current_vertex.label, current_vertex.dst))
+				if (labels.count(other_label) == 1)
+					InsertIfRelaxed(q, other_label, current_vertex.dst,
+							current_vertex.cost, global_distance);
 	}
 
 	return INF;
