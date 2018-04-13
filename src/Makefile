@@ -6,7 +6,7 @@ OBJFILES = partition.o \
 	index.o \
 	algorithms.o
 
-all: edp_test
+all: edp_test edp_main
 
 edp_test: $(OBJFILES) edp_test.o
 	$(CXX) $(CXXFLAGS) -o $@ $^

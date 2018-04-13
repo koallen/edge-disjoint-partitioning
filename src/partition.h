@@ -19,5 +19,6 @@ class Partition
 		bool ContainsCost(uint32_t src, uint32_t dst);
 		void AddCost(uint32_t src, uint32_t dst, uint32_t distance);
 		uint32_t GetCost(uint32_t src, uint32_t dst);
+		uint32_t GetCostSize();
 };
 #endif

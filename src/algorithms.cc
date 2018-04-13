@@ -38,7 +38,7 @@ Index RunAlgorithmOne(string& input_filename, uint32_t num_of_labels)
 	ifstream input(input_filename);
 	if (!input.is_open())
 	{
-		cout << "Input file cannot be opened!" << endl;
+		cerr << "Input file cannot be opened!" << endl;
 		exit(-1);
 	}
 
@@ -48,7 +48,7 @@ Index RunAlgorithmOne(string& input_filename, uint32_t num_of_labels)
 	{
 		other_hosts_map[src].insert(label);
 	}
-	cout << "Finish scanning" << endl;
+	cerr << "Finish scanning" << endl;
 
 	ifstream input2(input_filename);
 	while (input2 >> src >> dst >> weight >> label)

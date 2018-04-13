@@ -52,3 +52,8 @@ uint32_t Partition::GetCost(uint32_t src, uint32_t dst)
 	key += static_cast<uint64_t>(dst);
 	return costs_[key];
 }
+
+uint32_t Partition::GetCostSize()
+{
+	return costs_.size();
+}
