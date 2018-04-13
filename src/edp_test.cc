@@ -44,8 +44,8 @@ int main(int argc, char** argv)
 			cout << endl;
 		}
 
-		auto diff = chrono::duration_cast<chrono::nanoseconds>(t2 - t1);
-		cout << "Time taken to run the query: " << diff.count() << "ns" << endl;
+		auto diff = chrono::duration_cast<chrono::milliseconds>(t2 - t1);
+		cout << "Time taken to run the query: " << diff.count() << "ms" << endl;
 	}
 
 	return 0;

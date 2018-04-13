@@ -141,6 +141,10 @@ uint32_t RunAlgorithmTwo(Index& index, uint32_t src, uint32_t dst, unordered_set
 	{
 		auto current_vertex = q.top();
 		q.pop();
+		uint64_t key = static_cast<uint64_t>(current_vertex.label) << 32;
+		key += static_cast<uint64_t>(current_vertex.dst);
+		if (current_vertex.cost > global_distance[key])
+			continue;
 
 #ifndef NDEBUG
 		cout << "Now visiting " << current_vertex.dst << endl;
