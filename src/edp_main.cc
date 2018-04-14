@@ -35,7 +35,7 @@ int main(int argc, char** argv)
 	uniform_int_distribution<uint32_t> vertex_dist(0, num_of_vertices);
 
 	uint32_t num_of_queries = 1000;
-	for (uint32_t iter = 0; iter < num_of_queries; ++iter)
+	for (uint32_t iter = 1; iter <= num_of_queries; ++iter)
 	{
 		// generate query labels
 		unordered_set<uint32_t> labels;
@@ -73,7 +73,7 @@ int main(int argc, char** argv)
 		for (uint32_t l = 0; l < num_of_labels; ++l)
 			total_entries += index.GetPartition(l).GetCostSize();
 		cerr << "Now there are " << total_entries << " entries in index" << endl;
-		cout << total_entries << endl;
+		cout << iter << " " << total_entries << endl;
 
 		auto diff = chrono::duration_cast<chrono::milliseconds>(t2 - t1);
 		cerr << "Time taken to run the query: " << diff.count() << "ms" << endl;
