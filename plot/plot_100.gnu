@@ -1,11 +1,6 @@
 set terminal postscript eps color blacktext "Helvetica" 30 linewidth 4 enhanced size 7in,5in
-set output "test_plot.eps"
+set output "plot_100.eps"
 
-set xrange [0:1000]
-#set logscale y
-#set yrange [0:100000000]
-#set format y "%.0l*10^{%L}"
-set yrange [0:]
 unset mytics
 
 set key box
@@ -24,11 +19,11 @@ set tmargin 1.5
 set border 7
 set ytics nomirror
 set xtics nomirror
-set xtics 0,100,1000
 set xtics rotate by -45
 set xtics center offset 0,-0.5
 
-#plot "output.txt" every 100 with linespoints ls 4 title "YouTube-2000", \
-#     "output_500.txt" every 100 with linespoints ls 2 title "YouTube-500"
-plot "youtube.txt" every 100::99 with linespoints ls 4 title "YouTube-2000"
-#plot "output.txt" every 10 with lines title "YouTube-500"
+set yrange [0:]
+set xrange [0:100]
+set xtics 0,10,100
+plot "youtube.txt" every 10::::100 with lines lw 2 title "YouTube-2000", \
+     "biogrid.txt" every 10::::100 with lines lw 2 title "BioGrid-10000"
