@@ -3,10 +3,11 @@ set output "plot_100.eps"
 
 unset mytics
 
-set key box
+#set key box
 set key outside vert center right reverse
 set key samplen 1
 set key font ",28"
+set key width -2
 
 set xlabel "#Queries" offset 0,0.8
 set ylabel "#Index entries" offset 1.0,0
@@ -26,4 +27,5 @@ set yrange [0:]
 set xrange [0:100]
 set xtics 0,10,100
 plot "youtube.txt" every 10::::100 with lines lw 2 title "YouTube-2000", \
-     "biogrid.txt" every 10::::100 with lines lw 2 title "BioGrid-10000"
+     "biogrid.txt" every 10::::100 with lines lw 2 title "BioGrid-10000", \
+     "string.txt" every 10::::100 with lines lw 2 title "String"
